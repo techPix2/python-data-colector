@@ -7,6 +7,7 @@ from datetime import datetime
 from setup import getDiscos
 import random
 import base64
+from database import registrar_processo, buscar_maquina
 
 def cpuData():
     freq = psutil.cpu_freq()
@@ -88,7 +89,6 @@ def coletar_dados_disco(path=None):
 
     return dados_completos, dados_para_post
 
-# Funções auxiliares (exemplo)
 def obter_metricas_disco():
     disco_principal = 'C:\\' if os.name == 'nt' else '/'
     uso = psutil.disk_usage(disco_principal)
@@ -110,6 +110,68 @@ def coletar_todas_metricas():
         'network': netData(),
         'top_processos': obter_top_processos_cpu()
     }
+
+def verificar_e_executar_comandos(mobu_id, url_process, fk_company):
+    """
+    Consulta comandos pendentes para a máquina, executa e registra se forem concluídos com sucesso.
+    """
+    try:
+        url = f"{url_process}/comandos/{mobu_id}"
+        response = requests.get(url)
+
+        if response.status_code != 200:
+            print(f"[ERRO] Falha ao buscar comandos: {response.status_code}")
+            return
+
+        resposta = response.json()
+        comandos = resposta.get("comandos", [])
+
+        if not comandos:
+            return  # Nenhum comando pendente
+
+        # Buscar o machineId real no banco
+        maquina_info = buscar_maquina(mobu_id, fk_company)
+        machine_id = maquina_info.get("idServer")
+
+        if not machine_id:
+            print("[ERRO] machineId não encontrado para registrar processo.")
+            return
+
+        for comando in comandos:
+            acao = comando.get("acao")
+
+            if acao == "encerrar_processo":
+                pid = comando.get("pid")
+                nome = comando.get("nome")
+                cpu_percent = comando.get("cpu_percent", 0)
+
+                if encerrar_processo(pid, nome):
+                    registrar_processo(nome, machine_id, cpu_percent)
+
+        # Após executar todos os comandos, envia requisição para limpar
+        requests.delete(url)
+
+    except Exception as e:
+        print(f"[EXCEÇÃO] Erro ao processar comandos: {e}")
+
+def encerrar_processo(pid, nome=None):
+    """
+    Encerra o processo com o PID informado, opcionalmente checando o nome.
+    """
+    try:
+        proc = psutil.Process(pid)
+        if nome and proc.name().lower() != nome.lower():
+            print(f"[IGNORADO] Processo com PID {pid} não é '{nome}', é '{proc.name()}'")
+            return
+        proc.terminate()
+        proc.wait(timeout=5)
+        print(f"[✔️] Processo {pid} ({proc.name()}) encerrado com sucesso.")
+    except psutil.NoSuchProcess:
+        print(f"[❌] Processo PID {pid} não encontrado.")
+    except psutil.AccessDenied:
+        print(f"[⚠️] Sem permissão para encerrar o processo PID {pid}.")
+    except Exception as e:
+        print(f"[ERRO] Falha ao encerrar processo PID {pid}: {e}")
 
 def criar_issue_jira(titulo, descricao):
     JIRA_DOMAIN = 'techpix.atlassian.net'
@@ -170,7 +232,7 @@ def send_file_to_api(file_path, api_url):
         print(f"Falha ao enviar arquivo {file_path} para a API: {str(e)}")
         return False
 
-def monitorar_e_enviar(companyName, mobuID, api_url_arquivos, api_url_json, so):
+def monitorar_e_enviar(companyName, mobuID, api_url_arquivos, api_url_json, so, api_url_process, fkCompany):
     record_count = 0
     current_file = None
     current_process_file = None
@@ -210,6 +272,9 @@ def monitorar_e_enviar(companyName, mobuID, api_url_arquivos, api_url_json, so):
     while True:
         try:
             metricas = coletar_todas_metricas()
+
+            verificar_e_executar_comandos(mobuID, api_url_process, fkCompany)
+
             now = datetime.now()
             data_hora = now.strftime('%d/%m/%Y %H:%M:%S')
 

@@ -63,6 +63,7 @@ def register_machine(company_id):
 def main():
     api_url_arquivos = "http://44.208.193.41/s3/raw/upload"
     api_url_json = 'http://localhost:80/realtime/'
+    api_url_process = 'http://localhost:80/process/'
     so = platform.system().lower()
 
     try:
@@ -90,7 +91,9 @@ def main():
             mobuID=mobu_id,
             api_url_arquivos=api_url_arquivos,
             api_url_json=api_url_json,
-            so=so
+            so=so,
+            api_url_process=api_url_process,
+            fkCompany=company_id
         )
 
     except KeyboardInterrupt:

@@ -1,7 +1,7 @@
 import requests
 
 API_URL = "http://localhost:80/machine"
-
+API_URL_PROCESSO = "http://localhost:80/process"
 def login_maquina(email, password):
     url = f"{API_URL}/login"
     payload = {
@@ -32,19 +32,6 @@ def cadastrar_maquina(hostname, macAddress, mobuId, fkCompany):
             "status": response.status_code,
             "data": response.json()
         }
-    except requests.RequestException as e:
-        return {"error": str(e)}
-
-def buscar_maquina(mobuId, fkCompany):
-    url = f"{API_URL}/getMachineId"
-    payload = {
-        "mobuId": mobuId,
-        "fkCompany": fkCompany
-    }
-
-    try:
-        response = requests.post(url, json=payload)
-        return response.json()
     except requests.RequestException as e:
         return {"error": str(e)}
 
@@ -100,3 +87,31 @@ def registrar_componente(name, type, description, fkServer):
         return response.json()
     except requests.RequestException as e:
         return {"error": str(e)}
+
+def buscar_maquina(mobuId, fkCompany):
+    url = f"{API_URL}/getMachineId"
+    payload = {
+        "mobuId": mobuId,
+        "fkCompany": fkCompany
+    }
+
+    try:
+        response = requests.post(url, json=payload)
+        return response.json()
+    except requests.RequestException as e:
+        return {"error": str(e)}
+
+def registrar_processo(nameProcess, machineId, cpu_percent):
+    url = f"{API_URL}/cadastrar"
+    payload = {
+        "nameProcess": nameProcess,
+        "machineId": machineId,
+        "cpuPercent": cpu_percent
+    }
+
+    try:
+        response = requests.post(url, json=payload)
+        return response.json()
+    except requests.RequestException as e:
+        return {"error": str(e)}
+
