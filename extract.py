@@ -187,7 +187,7 @@ def monitorar_e_enviar(companyName, mobuID, api_url_arquivos, api_url_json, so):
 
         with open(output_file, mode='w', newline='') as file:
             writer = csv.writer(file)
-            headers = ['data_hora', 'cpu_freq', 'cpu_percent', 'ram_used', 'ram_percent']
+            headers = ['data_hora', 'cpu_freq', 'cpu_percent', 'ram_used', 'ram_percent', 'sendPackages', 'receivePackages']
             for disco in discos:
                 path_safe = disco['name'].replace('/', '_').replace('\\', '_').replace(':', '')
                 headers.extend([f'disco_{path_safe}_used', f'disco_{path_safe}_percent'])
@@ -216,9 +216,11 @@ def monitorar_e_enviar(companyName, mobuID, api_url_arquivos, api_url_json, so):
             cpu_freq = metricas['cpu'].get('Frequência (MHz)', 0)
             cpu_percent = metricas['cpu'].get('Uso (%)', 0)
             ram_percent = metricas['ram'].get('Uso (%)', 0)
-            ram_used = metricas['ram'].get('Uso (bytes)', 0)
+            ram_used = metricas['ram'].get('Usado (GB)', 0)
+            send_packages = metricas['network'].get('Pacotes Enviados', 0)
+            receive_packages = metricas['network'].get('Pacotes Recebidos', 0)
 
-            row = [data_hora, cpu_freq, cpu_percent, ram_used, ram_percent]
+            row = [data_hora, cpu_freq, cpu_percent, ram_used, ram_percent, send_packages, receive_packages]
 
             for disco in discos:
                 try:
@@ -300,3 +302,4 @@ def monitorar_e_enviar(companyName, mobuID, api_url_arquivos, api_url_json, so):
         except Exception as e:
             print(f"❌ Erro durante monitoramento: {e}")
             time.sleep(0.1)
+
