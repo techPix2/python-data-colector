@@ -45,7 +45,7 @@ def register_machine(company_id):
 
         if confirm == 'S':
             resp_cadastro = cadastrar_maquina(hostname, mac_address, mobu_id, company_id)
-            if resp_cadastro.status_code != 201:
+            if resp_cadastro["status"] != 201:
                 print("❌ Falha ao cadastrar a máquina.")
                 return None, []
             print("✅ Máquina cadastrada com sucesso!")
