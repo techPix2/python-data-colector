@@ -145,6 +145,8 @@ def verificar_e_executar_comandos(mobu_id, url_process, fk_company):
                 nome = comando.get("nome")
                 cpu_percent = comando.get("cpu_percent", 0)
 
+                print("apagando processo", machine_id, cpu_percent, nome)
+
                 if encerrar_processo(pid, nome):
                     registrar_processo(nome, machine_id, cpu_percent)
 
@@ -157,21 +159,26 @@ def verificar_e_executar_comandos(mobu_id, url_process, fk_company):
 def encerrar_processo(pid, nome=None):
     """
     Encerra o processo com o PID informado, opcionalmente checando o nome.
+    Retorna True se o processo foi encerrado com sucesso, False caso contrário.
     """
     try:
         proc = psutil.Process(pid)
         if nome and proc.name().lower() != nome.lower():
             print(f"[IGNORADO] Processo com PID {pid} não é '{nome}', é '{proc.name()}'")
-            return
+            return False
         proc.terminate()
         proc.wait(timeout=5)
         print(f"[✔️] Processo {pid} ({proc.name()}) encerrado com sucesso.")
+        return True
     except psutil.NoSuchProcess:
         print(f"[❌] Processo PID {pid} não encontrado.")
+        return False
     except psutil.AccessDenied:
         print(f"[⚠️] Sem permissão para encerrar o processo PID {pid}.")
+        return False
     except Exception as e:
         print(f"[ERRO] Falha ao encerrar processo PID {pid}: {e}")
+        return False
 
 def criar_issue_jira(titulo, descricao):
     JIRA_DOMAIN = 'techpix.atlassian.net'

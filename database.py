@@ -102,12 +102,14 @@ def buscar_maquina(mobuId, fkCompany):
         return {"error": str(e)}
 
 def registrar_processo(nameProcess, machineId, cpu_percent):
-    url = f"{API_URL}/cadastrar"
+    url = f"{API_URL_PROCESSO}/cadastrar"
     payload = {
         "nameProcess": nameProcess,
         "machineId": machineId,
-        "cpuPercent": cpu_percent
+        "cpu_percent": cpu_percent
     }
+
+    print(payload)
 
     try:
         response = requests.post(url, json=payload)
