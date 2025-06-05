@@ -201,7 +201,7 @@ def criar_issue_jira(titulo, descricao):
             "project": {"key": PROJECT_KEY},
             "summary": titulo,
             "description": descricao,
-            "issuetype": {"name": "Task"},
+            "issuetype": {"name": "[System] Incident"},
             "priority": {"name": "High"},
             "assignee": {"accountId": escolhido}
         }
