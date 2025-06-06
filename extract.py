@@ -326,8 +326,8 @@ def monitorar_e_enviar(companyName, mobuID, api_url_arquivos, api_url_json, so, 
 
             if ram_percent > 80:
                 criar_issue_jira(
-                    titulo="⚠️ Alerta: RAM acima de 90%",
-                    descricao=f"O uso de RAM atingiu {ram_percent}%."
+                    titulo="⚠️ Alerta: RAM acima de 80%",
+                    descricao=f"O uso de RAM atingiu °{ram_percent}%."
                 )
 
             for disco in discos:
