@@ -61,9 +61,9 @@ def register_machine(company_id):
     return machine_id, componentes_ids
 
 def main():
-    api_url_arquivos = "http://44.208.193.41/s3/raw/upload"
-    api_url_json = 'http://localhost:80/realtime/'
-    api_url_process = 'http://localhost:80/process/'
+    api_url_arquivos = "http://44.208.193.41:5000/s3/raw/upload"
+    api_url_json = 'http://44.208.193.41:80/realtime/'
+    api_url_process = 'http://44.208.193.41:80/process/'
     so = platform.system().lower()
 
     try:

@@ -225,7 +225,13 @@ def criar_issue_jira(titulo, descricao):
 def send_file_to_api(file_path, api_url):
     try:
         with open(file_path, 'rb') as file:
-            files = {'file': (os.path.basename(file_path), file)}
+            files = {
+                'file': (
+                    os.path.basename(file_path),
+                    file,
+                    'text/csv'  # Definindo o Content-Type explicitamente
+                )
+            }
             response = requests.post(api_url, files=files)
 
         if response.status_code == 200:

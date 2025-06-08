@@ -1,7 +1,7 @@
 import requests
 
-API_URL = "http://localhost:80/machine"
-API_URL_PROCESSO = "http://localhost:80/process"
+API_URL = "http://44.208.193.41:80/machine"
+API_URL_PROCESSO = "http://44.208.193.41:80/process"
 def login_maquina(email, password):
     url = f"{API_URL}/login"
     payload = {
