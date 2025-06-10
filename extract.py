@@ -25,7 +25,9 @@ def ramData():
     }
 
 def obter_top_processos_cpu():
+    nucleos = psutil.cpu_count(logical=True)
     processos = []
+
 
     for proc in psutil.process_iter(['pid', 'name', 'cpu_percent']):
         try:
@@ -42,10 +44,11 @@ def obter_top_processos_cpu():
         try:
             cpu = proc.cpu_percent(interval=None)
             if cpu > 0 and proc.info['name'] != "System Idle Process":
+                cpu_nucleos = cpu / nucleos
                 resultados.append({
                     'pid': proc.info['pid'],
                     'name': proc.info['name'],
-                    'cpu_percent': cpu
+                    'cpu_percent': round(cpu_nucleos,1),
                 })
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
